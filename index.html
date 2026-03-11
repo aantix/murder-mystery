@@ -43,6 +43,18 @@
   .btn:active { opacity: 0.7; }
 
   .btn-settings { background: #0f3460; color: #eee; }
+  .btn-help {
+    background: #0f3460;
+    color: #eee;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .btn-reset    { background: #e94560; color: #fff; }
 
   /* ---------- Player grid ---------- */
@@ -211,6 +223,37 @@
     cursor: pointer;
   }
   .settings-save:active { opacity: 0.7; }
+
+  /* ---------- Help overlay ---------- */
+  .help-card {
+    text-align: left;
+    max-width: 400px;
+  }
+
+  .help-card h2 {
+    margin-bottom: 14px;
+    font-size: 1.2rem;
+    color: #e94560;
+  }
+
+  .help-card p {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .help-card ol {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.7;
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+
+  .help-card li {
+    margin-bottom: 6px;
+  }
 </style>
 </head>
 <body>
@@ -218,13 +261,14 @@
 <h1>Murder Mystery</h1>
 
 <div class="top-bar">
-  <button class="btn btn-settings" id="settingsBtn">Settings</button>
+  <button class="btn btn-settings" id="settingsBtn">Change Names</button>
+  <button class="btn btn-help" id="helpBtn">?</button>
   <button class="btn btn-reset" id="resetBtn">New Round</button>
 </div>
 
 <div id="playerGrid" class="player-grid"></div>
 <div id="emptyState" class="empty-state">
-  Tap <strong>Settings</strong> to add player names.
+  Tap <strong>Change Names</strong> to add player names.
 </div>
 
 <!-- Overlays injected here -->
@@ -237,6 +281,7 @@
   const emptyState = document.getElementById('emptyState');
   const overlayContainer = document.getElementById('overlayContainer');
   const settingsBtn = document.getElementById('settingsBtn');
+  const helpBtn = document.getElementById('helpBtn');
   const resetBtn = document.getElementById('resetBtn');
 
   let names = [];
@@ -362,6 +407,37 @@
     overlay.querySelector('#namesInput').focus();
   }
 
+  // --- Help overlay ---
+  function showHelp() {
+    var overlay = document.createElement('div');
+    overlay.className = 'overlay';
+
+    overlay.innerHTML =
+      '<div class="overlay-card help-card">' +
+        '<button class="close-btn" aria-label="Close">&times;</button>' +
+        '<h2>How to Play</h2>' +
+        '<p>This is a playground tag game. The app secretly picks one player as the murderer so that everyone can play — no referee needed.</p>' +
+        '<ol>' +
+          '<li>Each player taps their name to privately see if they are the murderer.</li>' +
+          '<li>Go outside and play! The murderer secretly tags players one by one without getting caught.</li>' +
+          '<li>When tagged by the murderer, sit down where you are to "play dead."</li>' +
+          '<li>If someone suspects who the murderer is, they call a <strong>meeting</strong>. If they guess wrong, the guesser is out.</li>' +
+          '<li>Guess correctly and the murderer is caught — start a new round!</li>' +
+          '<li>If the murderer is the last one standing, the murderer wins.</li>' +
+        '</ol>' +
+        '<p>Tap <strong>New Round</strong> to reset and pick a new murderer.</p>' +
+      '</div>';
+
+    function close() { overlay.remove(); }
+
+    overlay.querySelector('.close-btn').addEventListener('click', close);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) close();
+    });
+
+    overlayContainer.appendChild(overlay);
+  }
+
   // --- Helpers ---
   function escapeHtml(str) {
     var div = document.createElement('div');
@@ -371,6 +447,7 @@
 
   // --- Events ---
   settingsBtn.addEventListener('click', showSettings);
+  helpBtn.addEventListener('click', showHelp);
   resetBtn.addEventListener('click', function () {
     revealedSet.clear();
     chooseMurderer();
